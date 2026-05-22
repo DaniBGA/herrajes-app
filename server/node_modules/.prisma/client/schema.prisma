@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  OWNER
+  EDITOR
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(EDITOR)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Category {
+  id               String    @id @default(cuid())
+  name             String    @unique
+  slug             String    @unique
+  description      String?
+  sortOrder        Int       @default(0)
+  featuredPosition Int?
+  image            String?
+  imageAlt         String?
+  products         Product[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([sortOrder])
+  @@index([featuredPosition])
+  @@index([createdAt])
+}
+
+model Product {
+  id               String         @id @default(cuid())
+  categoryId       String
+  category         Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  sku              String         @unique
+  name             String
+  slug             String         @unique
+  description      String
+  material         String?
+  price            Int
+  compareAtPrice   Int?
+  stock            Int            @default(0)
+  featured         Boolean        @default(false)
+  featuredPosition Int?
+  status           ProductStatus  @default(DRAFT)
+  images           ProductImage[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([price])
+  @@index([slug])
+  @@index([sku])
+  @@index([featured])
+  @@index([stock])
+  @@index([createdAt])
+  @@index([featured, featuredPosition])
+  @@index([status, featured])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+  @@index([productId, sortOrder])
+}

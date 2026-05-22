@@ -1,0 +1,48 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.1), transparent 28%),
+    radial-gradient(circle at top right, rgba(var(--accent-soft-rgb), 0.08), transparent 32%),
+    var(--sand);
+  color: var(--bg);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: clip;
+}
+
+main {
+  padding-top: 112px;
+}
