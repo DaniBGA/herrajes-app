@@ -1,0 +1,59 @@
+# Entorno y configuración
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+
+# Temp
+temp/
+tmp/
+
+# OS
+*.pem
+
+# Production (no versionamos la carpeta compilada en desarrollo)
+frontend/dist/
+server/node_modules/
+frontend/node_modules/
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Migraciones generadas (se generan automáticamente)
+server/prisma/migrations/
+
+# Lock files (generamos en deploy)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
