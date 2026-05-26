@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SectionHeading from './SectionHeading';
-import { apiRequest } from '../lib/apiClient';
+import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
 
 export default function CategoriesSection() {
   const navigate = useNavigate();
@@ -65,6 +65,11 @@ export default function CategoriesSection() {
                 }
               }}
             >
+              {category.image && (
+                <div className="category-card-image">
+                  <img src={resolveMediaUrl(category.image)} alt={category.imageAlt || category.name} />
+                </div>
+              )}
               <div className="category-card-ornament" aria-hidden="true" />
               <div className="category-card-content">
                 <h3>{category.name}</h3>

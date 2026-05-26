@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiRequest } from '../lib/apiClient';
+import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
 
 function formatPrice(value) {
   return new Intl.NumberFormat('es-AR', {
@@ -203,7 +203,7 @@ export default function ProductsPage() {
               <article key={product.id} className="catalog-card">
                 {product.images && product.images.length > 0 && (
                   <div className="catalog-card-media">
-                    <img src={product.images[0].url} alt={product.name} />
+                    <img src={resolveMediaUrl(product.images[0].url)} alt={product.name} />
                   </div>
                 )}
                 {product.featured && <span className="catalog-card-badge">Destacado</span>}

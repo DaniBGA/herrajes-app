@@ -1,4 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_ORIGIN = new URL(API_BASE_URL).origin;
+
+export function resolveMediaUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`;
+  return `${API_ORIGIN}/${url.replace(/^\//, '')}`;
+}
 
 export async function apiRequest(path, options = {}) {
   const token = window.localStorage.getItem('herrajes-admin-token');

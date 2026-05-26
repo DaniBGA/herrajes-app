@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiRequest } from '../lib/apiClient';
+import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
 import '../styles/admin-categories.css';
 
 const emptyCategory = {
@@ -72,8 +72,10 @@ export default function AdminCategoriesPage({ token }) {
       formData.append('slug', categoryForm.slug);
       formData.append('description', categoryForm.description || '');
       formData.append('sortOrder', categoryForm.sortOrder || 0);
-      formData.append('featuredPosition', categoryForm.featuredPosition ? parseInt(categoryForm.featuredPosition) : '');
       formData.append('imageAlt', categoryForm.imageAlt || '');
+      if (categoryForm.featuredPosition) {
+        formData.append('featuredPosition', String(parseInt(categoryForm.featuredPosition, 10)));
+      }
       
       if (selectedImage) {
         formData.append('image', selectedImage);
@@ -224,7 +226,7 @@ export default function AdminCategoriesPage({ token }) {
               {(currentImage || selectedImage) && (
                 <div style={{ marginBottom: '10px' }}>
                   <img 
-                    src={selectedImage ? URL.createObjectURL(selectedImage) : currentImage} 
+                    src={selectedImage ? URL.createObjectURL(selectedImage) : resolveMediaUrl(currentImage)} 
                     alt="Preview" 
                     style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
                   />

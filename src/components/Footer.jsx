@@ -19,9 +19,13 @@ export default function Footer() {
             <ul className="footer-links">
               {column.links.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined}>
-                    {link.label}
-                  </a>
+                  {link.isText ? (
+                    <span>{link.label}</span>
+                  ) : (
+                    <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined}>
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

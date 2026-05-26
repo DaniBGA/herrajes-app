@@ -302,7 +302,6 @@ export const footerColumns = [
     links: [
       { label: 'Catálogo de productos', href: '/productos' },
       { label: 'Destacados', href: '/#productos' },
-      { label: 'Administrador', href: '/admin' },
       { label: 'Quiénes somos', href: '/#nosotros' },
       { label: 'Contacto', href: '/#contacto' }
     ]
@@ -310,9 +309,9 @@ export const footerColumns = [
   {
     title: 'Horarios',
     links: [
-      { label: 'Lunes a Viernes: 9 – 18 hs', href: '#' },
-      { label: 'Sábados: 9 – 13 hs', href: '#' },
-      { label: '4 de Abril 404, Tandil', href: '#' },
+      { label: 'Lunes a Viernes: 9 – 18 hs', isText: true },
+      { label: 'Sábados: 9 – 13 hs', isText: true },
+      { label: '4 de Abril 404, Tandil', href: 'https://www.google.com/maps/search/4+de+Abril+404,+Tandil,+Argentina', external: true },
       { label: 'Instagram', href: 'https://www.instagram.com/almacendeherrajes/', external: true },
       { label: 'Facebook', href: 'https://www.facebook.com/p/Almacen-de-Herrajes-100014280965222/', external: true }
     ]

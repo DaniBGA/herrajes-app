@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { apiRequest } from '../lib/apiClient';
+import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
 import '../styles/admin-products.css';
 
 const emptyProduct = {
@@ -378,7 +378,7 @@ export default function AdminProductsPage({ token }) {
                 value={productForm.price}
                 onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
                 min="0"
-                step="100"
+                step="0.01"
                 required
               />
             </div>
@@ -390,7 +390,7 @@ export default function AdminProductsPage({ token }) {
                 value={productForm.compareAtPrice}
                 onChange={(e) => setProductForm({ ...productForm, compareAtPrice: e.target.value })}
                 min="0"
-                step="100"
+                step="0.01"
               />
             </div>
           </div>
@@ -560,7 +560,7 @@ export default function AdminProductsPage({ token }) {
                     <tr key={product.id} className={`product-row ${product.status.toLowerCase()}`}>
                       <td className="product-image-cell">
                         {product.images && product.images.length > 0 ? (
-                          <img src={product.images[0].url} alt={product.name} />
+                          <img src={resolveMediaUrl(product.images[0].url)} alt={product.name} />
                         ) : (
                           <span className="no-image">Sin imagen</span>
                         )}

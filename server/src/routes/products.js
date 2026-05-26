@@ -13,8 +13,11 @@ const productSchema = z.object({
   slug: z.string().min(2).optional(),
   description: z.string().min(5),
   material: z.string().optional().nullable(),
-  price: z.coerce.number().int().nonnegative(),
-  compareAtPrice: z.coerce.number().int().nonnegative().optional().nullable(),
+  price: z.coerce.number().nonnegative(),
+  compareAtPrice: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return value;
+  }, z.coerce.number().nonnegative().optional()),
   stock: z.coerce.number().int().nonnegative().optional(),
   featured: z.preprocess((val) => {
     if (typeof val === 'string') {
@@ -24,7 +27,10 @@ const productSchema = z.object({
     }
     return val;
   }, z.boolean().optional()),
-  featuredPosition: z.coerce.number().int().positive().optional().nullable(),
+  featuredPosition: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return value;
+  }, z.coerce.number().int().positive().optional()),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   imageAlts: z.string().optional()
 });
