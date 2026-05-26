@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logoImage from '../images/Captura_de_pantalla_de_2026-05-06_17-09-36-removebg-preview.png';
 import { navLinks } from '../data/siteData';
 
@@ -9,8 +10,49 @@ const themeOptions = [
 
 export default function Header({ theme, onThemeChange }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
   const mainLinks = navLinks.filter((link) => !link.cta);
   const ctaLink = navLinks.find((link) => link.cta);
+
+  const scrollToSection = (sectionId) => {
+    if (!sectionId) return;
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleInternalNavigation = (event, link) => {
+    if (!link.sectionId) return;
+    event.preventDefault();
+    setMenuOpen(false);
+
+    if (location.pathname !== '/') {
+      navigate('/');
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => scrollToSection(link.sectionId));
+      });
+      return;
+    }
+
+    scrollToSection(link.sectionId);
+  };
+
+  const handleLogoClick = (event) => {
+    event.preventDefault();
+    setMenuOpen(false);
+
+    if (location.pathname !== '/') {
+      navigate('/');
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      });
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleThemeSelect = (event, value) => {
     onThemeChange(value);
@@ -22,7 +64,7 @@ export default function Header({ theme, onThemeChange }) {
 
   return (
     <header className="site-header">
-      <a href="#top" className="brand" onClick={() => setMenuOpen(false)}>
+      <a href="/" className="brand" onClick={handleLogoClick}>
         <img src={logoImage} alt="Almacen de Herrajes Logo" className="brand-logo" />
       </a>
 
@@ -40,7 +82,7 @@ export default function Header({ theme, onThemeChange }) {
             target={link.external ? '_blank' : undefined}
             rel={link.external ? 'noreferrer' : undefined}
             className="nav-link"
-            onClick={() => setMenuOpen(false)}
+            onClick={(event) => handleInternalNavigation(event, link)}
           >
             {link.label}
           </a>
@@ -75,7 +117,7 @@ export default function Header({ theme, onThemeChange }) {
               target={ctaLink.external ? '_blank' : undefined}
               rel={ctaLink.external ? 'noreferrer' : undefined}
               className="nav-link nav-link-cta"
-              onClick={() => setMenuOpen(false)}
+              onClick={(event) => handleInternalNavigation(event, ctaLink)}
             >
               {ctaLink.label}
             </a>

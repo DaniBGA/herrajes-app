@@ -65,7 +65,7 @@ export default function FeaturedProducts() {
             <article key={product.id} className="product-card">
               <div className="product-card-media">
                 {product.images && product.images.length > 0 ? (
-                  <img src={resolveMediaUrl(product.images[0].url)} alt={product.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                  <img src={resolveMediaUrl(product.images[0].url)} alt={product.name} />
                 ) : (
                   <ProductGlyph name="product" />
                 )}

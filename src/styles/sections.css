@@ -465,11 +465,24 @@
   position: relative;
   display: grid;
   place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   min-height: 132px;
   margin-bottom: 18px;
   border-radius: 18px;
   overflow: hidden;
   background: radial-gradient(circle at top, rgba(var(--accent-rgb), 0.18), transparent 45%), #232323;
+}
+
+.product-card-media img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .product-card-media::after {
@@ -1061,12 +1074,23 @@
 }
 
 .catalog-card-media {
+  width: 100%;
+  aspect-ratio: 1 / 1;
   min-height: 110px;
   border-radius: 14px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   background: radial-gradient(circle at top, rgba(var(--accent-rgb), 0.18), transparent 45%), #242424;
   margin-bottom: 14px;
+}
+
+.catalog-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .catalog-card-media svg {

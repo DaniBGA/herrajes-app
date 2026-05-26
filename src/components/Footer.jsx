@@ -1,8 +1,35 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import logoImage from '../images/Captura_de_pantalla_de_2026-05-06_17-09-36-removebg-preview.png';
 import { footerColumns } from '../data/siteData';
 
 export default function Footer() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const scrollToSection = (sectionId) => {
+    if (!sectionId) return;
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleLinkClick = (event, link) => {
+    if (!link.sectionId) return;
+    event.preventDefault();
+
+    if (location.pathname !== '/') {
+      navigate('/');
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => scrollToSection(link.sectionId));
+      });
+      return;
+    }
+
+    scrollToSection(link.sectionId);
+  };
+
   return (
     <footer className="site-footer">
       <div className="footer-grid">
@@ -21,6 +48,10 @@ export default function Footer() {
                 <li key={link.label}>
                   {link.isText ? (
                     <span>{link.label}</span>
+                  ) : link.sectionId ? (
+                    <a href={link.href} onClick={(event) => handleLinkClick(event, link)}>
+                      {link.label}
+                    </a>
                   ) : (
                     <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noreferrer' : undefined}>
                       {link.label}

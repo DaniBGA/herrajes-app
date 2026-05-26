@@ -1,8 +1,8 @@
 export const navLinks = [
   { label: 'Productos', href: '/productos' },
-  { label: 'Nosotros', href: '/#nosotros' },
-  { label: 'Contacto', href: '/#contacto' },
-  { label: 'Consultar', href: '/#contacto', cta: true }
+  { label: 'Nosotros', href: '/', sectionId: 'nosotros' },
+  { label: 'Contacto', href: '/', sectionId: 'contacto' },
+  { label: 'Consultar', href: '/', sectionId: 'contacto', cta: true }
 ];
 
 export const heroStats = [
@@ -301,9 +301,9 @@ export const footerColumns = [
     title: 'Navegación',
     links: [
       { label: 'Catálogo de productos', href: '/productos' },
-      { label: 'Destacados', href: '/#productos' },
-      { label: 'Quiénes somos', href: '/#nosotros' },
-      { label: 'Contacto', href: '/#contacto' }
+      { label: 'Destacados', href: '/', sectionId: 'productos' },
+      { label: 'Quiénes somos', href: '/', sectionId: 'nosotros' },
+      { label: 'Contacto', href: '/', sectionId: 'contacto' }
     ]
   },
   {
