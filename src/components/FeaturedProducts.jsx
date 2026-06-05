@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import SectionHeading from './SectionHeading';
-import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
+import { apiRequest } from '../lib/apiClient';
 import { ProductGlyph } from './Icons';
+import ProductImageCarousel from './ProductImageCarousel';
+import ImageLightbox from './ImageLightbox';
+import ProductInquiryModal from './ProductInquiryModal';
 
 export default function FeaturedProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeFilter, setActiveFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeLightbox, setActiveLightbox] = useState(null);
+  const [inquiryProduct, setInquiryProduct] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -37,6 +42,24 @@ export default function FeaturedProducts() {
     ? products
     : products.filter((product) => product.category?.slug === activeFilter);
 
+  const closeLightbox = () => setActiveLightbox(null);
+
+  const moveLightboxPrevious = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((current) => ({
+      ...current,
+      index: (current.index - 1 + current.images.length) % current.images.length
+    }));
+  };
+
+  const moveLightboxNext = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((current) => ({
+      ...current,
+      index: (current.index + 1) % current.images.length
+    }));
+  };
+
   const productFilters = [
     { value: '', label: 'Todos' },
     ...categories.map((cat) => ({ value: cat.slug, label: cat.name }))
@@ -63,26 +86,43 @@ export default function FeaturedProducts() {
         <div className="product-grid">
           {filteredProducts.slice(0, 4).map((product) => (
             <article key={product.id} className="product-card">
-              <div className="product-card-media">
-                {product.images && product.images.length > 0 ? (
-                  <img src={resolveMediaUrl(product.images[0].url)} alt={product.name} />
-                ) : (
-                  <ProductGlyph name="product" />
-                )}
-              </div>
-              <p className="product-sku">SKU · {product.sku}</p>
+              <ProductImageCarousel
+                className="product-card-media"
+                images={product.images || []}
+                title={product.name}
+                fallback={<ProductGlyph name="product" />}
+                onOpenImage={(index) => setActiveLightbox({ product, index })}
+              />
               <h3 className="product-title">{product.name}</h3>
               <p className="product-description">{product.description}</p>
               <div className="product-footer">
                 <span className="product-material">{product.material || 'N/A'}</span>
-                <a href="#contacto" className="product-link">
+                <button type="button" className="product-link" onClick={() => setInquiryProduct(product)}>
                   Consultar →
-                </a>
+                </button>
               </div>
             </article>
           ))}
         </div>
       )}
+
+      {activeLightbox && (
+        <ImageLightbox
+          open
+          images={activeLightbox.product.images || []}
+          index={activeLightbox.index}
+          title={activeLightbox.product.name}
+          onClose={closeLightbox}
+          onPrev={moveLightboxPrevious}
+          onNext={moveLightboxNext}
+        />
+      )}
+
+      <ProductInquiryModal
+        open={Boolean(inquiryProduct)}
+        productName={inquiryProduct?.name || ''}
+        onClose={() => setInquiryProduct(null)}
+      />
     </section>
   );
 }

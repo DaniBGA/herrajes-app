@@ -269,7 +269,7 @@ export const contactChannels = [
   {
     label: 'WhatsApp',
     value: 'Consultas rápidas y pedidos',
-    href: 'https://wa.me/5492494000000',
+    href: 'https://wa.me/5492494607065',
     icon: 'whatsapp',
     accent: 'wa'
   },
@@ -279,13 +279,6 @@ export const contactChannels = [
     href: 'https://www.instagram.com/almacendeherrajes/',
     icon: 'instagram',
     accent: 'ig'
-  },
-  {
-    label: 'Facebook',
-    value: 'Almacen de Herrajes',
-    href: 'https://www.facebook.com/p/Almacen-de-Herrajes-100014280965222/',
-    icon: 'facebook',
-    accent: 'fb'
   },
   {
     label: 'Ubicación',
@@ -309,8 +302,8 @@ export const footerColumns = [
   {
     title: 'Horarios',
     links: [
-      { label: 'Lunes a Viernes: 9 – 18 hs', isText: true },
-      { label: 'Sábados: 9 – 13 hs', isText: true },
+      { label: 'Lunes a Viernes: 9 – 17 hs', isText: true },
+      { label: 'Sábados: 9 – 12 hs', isText: true },
       { label: '4 de Abril 404, Tandil', href: 'https://www.google.com/maps/search/4+de+Abril+404,+Tandil,+Argentina', external: true },
       { label: 'Instagram', href: 'https://www.instagram.com/almacendeherrajes/', external: true },
       { label: 'Facebook', href: 'https://www.facebook.com/p/Almacen-de-Herrajes-100014280965222/', external: true }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
+import ImageDropzone from './ImageDropzone';
 import '../styles/admin-products.css';
 
 const emptyProduct = {
@@ -36,6 +37,7 @@ export default function AdminProductsPage({ token }) {
   const [currentPage, setCurrentPage] = useState(1);
   
   const [productForm, setProductForm] = useState(emptyProduct);
+  const [existingImages, setExistingImages] = useState([]);
   const [imageFiles, setImageFiles] = useState([]);
   const [imageAlts, setImageAlts] = useState(['']);
   const [loading, setLoading] = useState(false);
@@ -106,10 +108,9 @@ export default function AdminProductsPage({ token }) {
     }
   }
 
-  const handleImageChange = (event, index) => {
-    const files = Array.from(event.target.files || []);
+  const handleImageChange = (file, index) => {
     const newImageFiles = [...imageFiles];
-    newImageFiles[index] = files[0];
+    newImageFiles[index] = file;
     setImageFiles(newImageFiles);
   };
 
@@ -155,6 +156,10 @@ export default function AdminProductsPage({ token }) {
         formData.append(key, value);
       });
 
+      if (editingProductId) {
+        formData.append('existingImageIds', JSON.stringify(existingImages.map((image) => image.id)));
+      }
+
       const imageAltsToSend = [];
       imageFiles.forEach((file, index) => {
         if (file) {
@@ -177,6 +182,7 @@ export default function AdminProductsPage({ token }) {
       });
 
       setProductForm(emptyProduct);
+      setExistingImages([]);
       setImageFiles([]);
       setImageAlts(['']);
       setShowForm(false);
@@ -225,6 +231,7 @@ export default function AdminProductsPage({ token }) {
       status: product.status
     });
     setEditingProductId(product.id);
+    setExistingImages(product.images || []);
     setImageFiles([]);
     setImageAlts(['']);
     setShowForm(true);
@@ -233,11 +240,16 @@ export default function AdminProductsPage({ token }) {
 
   function handleCancelEdit() {
     setProductForm(emptyProduct);
+    setExistingImages([]);
     setImageFiles([]);
     setImageAlts(['']);
     setEditingProductId(null);
     setShowForm(false);
   }
+
+  const handleRemoveExistingImage = (imageId) => {
+    setExistingImages((current) => current.filter((image) => image.id !== imageId));
+  };
 
   function getPaginationPages() {
     const maxVisible = isMobilePagination ? 4 : 10;
@@ -440,12 +452,43 @@ export default function AdminProductsPage({ token }) {
 
           <div className="images-section">
             <h3>Imágenes del Producto</h3>
+
+            {editingProductId && existingImages.length > 0 && (
+              <div className="existing-images-block">
+                <p className="existing-images-title">Imágenes actuales</p>
+                <div className="existing-images-grid">
+                  {existingImages.map((image) => (
+                    <article key={image.id} className="existing-image-card">
+                      <img src={resolveMediaUrl(image.url)} alt={image.alt || productForm.name} />
+                      <div className="existing-image-actions">
+                        <span className="existing-image-label">{image.alt || 'Sin alt'}</span>
+                        <button
+                          type="button"
+                          className="btn btn-small btn-delete existing-image-delete"
+                          onClick={() => handleRemoveExistingImage(image.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {editingProductId && existingImages.length === 0 && (
+              <p className="existing-images-empty">No quedan imágenes guardadas para este producto.</p>
+            )}
+
             {imageFiles.map((file, index) => (
               <div key={index} className="image-input-group">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e, index)}
+                <ImageDropzone
+                  label={`Imagen ${index + 1}`}
+                  helperText="Arrastrá, pegá o hacé clic para cargar la imagen."
+                  file={file}
+                  onFileChange={(selectedFile) => handleImageChange(selectedFile, index)}
+                  buttonLabel={file ? 'Cambiar archivo' : 'Elegir archivo'}
+                  previewAlt={imageAlts[index] || productForm.name || `Imagen ${index + 1}`}
                 />
                 <input
                   type="text"

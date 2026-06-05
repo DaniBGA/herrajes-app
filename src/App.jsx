@@ -6,6 +6,7 @@ import Hero from './components/Hero';
 import CategoriesSection from './components/CategoriesSection';
 import FeaturedProducts from './components/FeaturedProducts';
 import AboutSection from './components/AboutSection';
+import ProvidersSection from './components/ProvidersSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
@@ -103,6 +104,7 @@ export default function App() {
             <CategoriesSection />
             <FeaturedProducts />
             <AboutSection />
+            <ProvidersSection />
             <ContactSection />
           </>
         )}

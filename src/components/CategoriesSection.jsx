@@ -39,7 +39,7 @@ export default function CategoriesSection() {
     <section id="categorias" className="section section-light">
       <SectionHeading
         eyebrow="Catálogo"
-        title="Todo para el amoblamiento de interiores"
+        title="Herrajes e insumos para tus amoblamientos"
         action={
           <a href="/productos" className="section-link">
             Ver catálogo completo →

@@ -176,10 +176,32 @@ router.put('/:id', requireAuth, upload.array('images', 12), async (request, resp
 
     const slug = body.slug || body.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const imageAlts = body.imageAlts ? JSON.parse(body.imageAlts) : [];
+    const keepExistingImageIds = request.body.existingImageIds ? JSON.parse(request.body.existingImageIds) : null;
+    const existingImagesById = new Map(existingProduct.images.map((image) => [image.id, image]));
+    const keptImages = keepExistingImageIds
+      ? keepExistingImageIds.map((imageId) => existingImagesById.get(imageId)).filter(Boolean)
+      : existingProduct.images;
+    const removedImages = keepExistingImageIds
+      ? existingProduct.images.filter((image) => !keepExistingImageIds.includes(image.id))
+      : [];
 
-    // If new images are uploaded, delete old ones
-    if (files.length > 0 && existingProduct.images.length > 0) {
-      deleteFiles(existingProduct.images.map(img => img.url));
+    const nextSortOrder = keptImages.reduce((highestSortOrder, image) => Math.max(highestSortOrder, image.sortOrder), -1) + 1;
+    const imagesUpdate = {};
+
+    if (removedImages.length > 0) {
+      imagesUpdate.deleteMany = {
+        id: {
+          in: removedImages.map((image) => image.id)
+        }
+      };
+    }
+
+    if (files.length > 0) {
+      imagesUpdate.create = files.map((file, index) => ({
+        url: `/uploads/${file.filename}`,
+        alt: imageAlts[index] || body.name,
+        sortOrder: nextSortOrder + index
+      }));
     }
 
     const product = await prisma.product.update({
@@ -197,22 +219,17 @@ router.put('/:id', requireAuth, upload.array('images', 12), async (request, resp
         featured: body.featured ?? false,
         featuredPosition: body.featuredPosition || null,
         status: body.status || 'DRAFT',
-        ...(files.length > 0 && {
-          images: {
-            deleteMany: {},
-            create: files.map((file, index) => ({
-              url: `/uploads/${file.filename}`,
-              alt: imageAlts[index] || body.name,
-              sortOrder: index
-            }))
-          }
-        })
+        ...(Object.keys(imagesUpdate).length > 0 ? { images: imagesUpdate } : {})
       },
       include: {
         category: true,
         images: true
       }
     });
+
+    if (removedImages.length > 0) {
+      deleteFiles(removedImages.map((image) => image.url));
+    }
 
     return response.json({ product });
   } catch (error) {

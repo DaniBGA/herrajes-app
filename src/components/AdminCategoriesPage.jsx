@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
+import ImageDropzone from './ImageDropzone';
 import '../styles/admin-categories.css';
 
 const emptyCategory = {
@@ -223,25 +224,15 @@ export default function AdminCategoriesPage({ token }) {
 
             <div className="form-group">
               <label>Imagen de la Categoría</label>
-              {(currentImage || selectedImage) && (
-                <div style={{ marginBottom: '10px' }}>
-                  <img 
-                    src={selectedImage ? URL.createObjectURL(selectedImage) : resolveMediaUrl(currentImage)} 
-                    alt="Preview" 
-                    style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '4px' }}
-                  />
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  setSelectedImage(e.target.files[0] || null);
-                }}
+              <ImageDropzone
+                label={selectedImage ? 'Imagen seleccionada' : currentImage ? 'Imagen actual' : 'Imagen de la categoría'}
+                helperText="Arrastrá, pegá desde el portapapeles o hacé clic para seleccionar una imagen."
+                file={selectedImage}
+                previewUrl={resolveMediaUrl(currentImage)}
+                onFileChange={setSelectedImage}
+                buttonLabel="Elegir imagen"
+                previewAlt={categoryForm.name ? `Imagen de ${categoryForm.name}` : 'Imagen de la categoría'}
               />
-              <small style={{ color: '#999', display: 'block', marginTop: '4px' }}>
-                Sube una imagen para esta categoría (JPG, PNG, etc.)
-              </small>
             </div>
 
             <div className="form-group">
@@ -276,7 +267,7 @@ export default function AdminCategoriesPage({ token }) {
                 <div key={cat.id} className="category-item">
                   {cat.image && (
                     <div className="category-image-preview">
-                      <img src={cat.image} alt={cat.imageAlt || cat.name} />
+                      <img src={resolveMediaUrl(cat.image)} alt={cat.imageAlt || cat.name} />
                     </div>
                   )}
                   <div className="category-info" style={{ flex: 1 }}>
