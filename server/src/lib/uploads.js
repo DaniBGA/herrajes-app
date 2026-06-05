@@ -26,10 +26,13 @@ export const upload = multer({ storage });
 // Helper function to delete file from disk
 export function deleteFile(filePath) {
   if (!filePath) return;
-  const fullPath = path.resolve(process.cwd(), filePath);
+  // Extract filename from path if it's a URL path (/uploads/filename)
+  const fileName = filePath.startsWith('/uploads/') ? filePath.replace('/uploads/', '') : filePath;
+  const fullPath = path.resolve(uploadPath, fileName);
   if (fs.existsSync(fullPath)) {
     try {
       fs.unlinkSync(fullPath);
+      console.log(`File deleted: ${fullPath}`);
     } catch (error) {
       console.error(`Error deleting file ${fullPath}:`, error);
     }
@@ -43,8 +46,17 @@ export function deleteFiles(filePaths) {
 }
 
 // Helper function to get file url from request
-export function getFileUrl(file) {
-  return file ? `/uploads/${file.filename}` : null;
+export function getFileUrl(file, request = null) {
+  if (!file) return null;
+  const relativeUrl = `/uploads/${file.filename}`;
+
+  if (!request) {
+    return relativeUrl;
+  }
+
+  const protocol = request.headers['x-forwarded-proto'] || request.protocol;
+  const host = request.get('host');
+  return `${protocol}://${host}${relativeUrl}`;
 }
 
 // Helper function to get multiple file urls from request

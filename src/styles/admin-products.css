@@ -241,21 +241,76 @@
   font-size: 1rem;
 }
 
+.existing-images-block {
+  margin-bottom: 1rem;
+}
+
+.existing-images-title {
+  margin: 0 0 0.75rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.existing-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.9rem;
+}
+
+.existing-image-card {
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  display: grid;
+}
+
+.existing-image-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  background: #f9fafb;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.existing-image-actions {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+}
+
+.existing-image-label {
+  color: #6b7280;
+  font-size: 0.8rem;
+  word-break: break-word;
+}
+
+.existing-image-delete {
+  width: 100%;
+}
+
+.existing-images-empty {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
 .image-input-group {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 1rem;
+  gap: 0.9rem;
   margin-bottom: 1rem;
-  align-items: center;
+  align-items: stretch;
 }
 
 @media (max-width: 768px) {
   .image-input-group {
-    grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
 }
 
-.image-input-group input {
+.image-input-group input[type='text'] {
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;

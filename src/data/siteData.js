@@ -1,8 +1,8 @@
 export const navLinks = [
   { label: 'Productos', href: '/productos' },
-  { label: 'Nosotros', href: '/#nosotros' },
-  { label: 'Contacto', href: '/#contacto' },
-  { label: 'Consultar', href: '/#contacto', cta: true }
+  { label: 'Nosotros', href: '/', sectionId: 'nosotros' },
+  { label: 'Contacto', href: '/', sectionId: 'contacto' },
+  { label: 'Consultar', href: '/', sectionId: 'contacto', cta: true }
 ];
 
 export const heroStats = [
@@ -269,7 +269,7 @@ export const contactChannels = [
   {
     label: 'WhatsApp',
     value: 'Consultas rápidas y pedidos',
-    href: 'https://wa.me/5492494000000',
+    href: 'https://wa.me/5492494607065',
     icon: 'whatsapp',
     accent: 'wa'
   },
@@ -279,13 +279,6 @@ export const contactChannels = [
     href: 'https://www.instagram.com/almacendeherrajes/',
     icon: 'instagram',
     accent: 'ig'
-  },
-  {
-    label: 'Facebook',
-    value: 'Almacen de Herrajes',
-    href: 'https://www.facebook.com/p/Almacen-de-Herrajes-100014280965222/',
-    icon: 'facebook',
-    accent: 'fb'
   },
   {
     label: 'Ubicación',
@@ -301,18 +294,17 @@ export const footerColumns = [
     title: 'Navegación',
     links: [
       { label: 'Catálogo de productos', href: '/productos' },
-      { label: 'Destacados', href: '/#productos' },
-      { label: 'Administrador', href: '/admin' },
-      { label: 'Quiénes somos', href: '/#nosotros' },
-      { label: 'Contacto', href: '/#contacto' }
+      { label: 'Destacados', href: '/', sectionId: 'productos' },
+      { label: 'Quiénes somos', href: '/', sectionId: 'nosotros' },
+      { label: 'Contacto', href: '/', sectionId: 'contacto' }
     ]
   },
   {
     title: 'Horarios',
     links: [
-      { label: 'Lunes a Viernes: 9 – 18 hs', href: '#' },
-      { label: 'Sábados: 9 – 13 hs', href: '#' },
-      { label: '4 de Abril 404, Tandil', href: '#' },
+      { label: 'Lunes a Viernes: 9 – 17 hs', isText: true },
+      { label: 'Sábados: 9 – 12 hs', isText: true },
+      { label: '4 de Abril 404, Tandil', href: 'https://www.google.com/maps/search/4+de+Abril+404,+Tandil,+Argentina', external: true },
       { label: 'Instagram', href: 'https://www.instagram.com/almacendeherrajes/', external: true },
       { label: 'Facebook', href: 'https://www.facebook.com/p/Almacen-de-Herrajes-100014280965222/', external: true }
     ]

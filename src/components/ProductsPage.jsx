@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { apiRequest } from '../lib/apiClient';
+import ProductImageCarousel from './ProductImageCarousel';
+import ImageLightbox from './ImageLightbox';
+import { ProductGlyph } from './Icons';
+import ProductInquiryModal from './ProductInquiryModal';
 
 function formatPrice(value) {
   return new Intl.NumberFormat('es-AR', {
@@ -25,6 +29,8 @@ export default function ProductsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeLightbox, setActiveLightbox] = useState(null);
+  const [inquiryProduct, setInquiryProduct] = useState(null);
 
   // Cargar categorías y verificar filtro del sessionStorage
   useEffect(() => {
@@ -115,6 +121,24 @@ export default function ProductsPage() {
     ...categories
   ];
 
+  const closeLightbox = () => setActiveLightbox(null);
+
+  const moveLightboxPrevious = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((current) => ({
+      ...current,
+      index: (current.index - 1 + current.images.length) % current.images.length
+    }));
+  };
+
+  const moveLightboxNext = () => {
+    if (!activeLightbox) return;
+    setActiveLightbox((current) => ({
+      ...current,
+      index: (current.index + 1) % current.images.length
+    }));
+  };
+
   return (
     <section id="productos-page" className="section section-dark products-page">
       <div className="products-page-head">
@@ -201,11 +225,13 @@ export default function ProductsPage() {
           <div className="products-catalog-grid">
             {products.map((product) => (
               <article key={product.id} className="catalog-card">
-                {product.images && product.images.length > 0 && (
-                  <div className="catalog-card-media">
-                    <img src={product.images[0].url} alt={product.name} />
-                  </div>
-                )}
+                <ProductImageCarousel
+                  className="catalog-card-media"
+                  images={product.images || []}
+                  title={product.name}
+                  fallback={<ProductGlyph name="product" />}
+                  onOpenImage={(index) => setActiveLightbox({ product, index })}
+                />
                 {product.featured && <span className="catalog-card-badge">Destacado</span>}
                 <p className="catalog-card-sku">SKU · {product.sku}</p>
                 <h3>{product.name}</h3>
@@ -216,12 +242,30 @@ export default function ProductsPage() {
                   </span>
                   <strong>{formatPrice(product.price)}</strong>
                 </div>
-                <a href="#contacto" className="catalog-card-link">
+                <button type="button" className="catalog-card-link" onClick={() => setInquiryProduct(product)}>
                   Consultar disponibilidad →
-                </a>
+                </button>
               </article>
             ))}
           </div>
+
+          {activeLightbox && (
+            <ImageLightbox
+              open
+              images={activeLightbox.product.images || []}
+              index={activeLightbox.index}
+              title={activeLightbox.product.name}
+              onClose={closeLightbox}
+              onPrev={moveLightboxPrevious}
+              onNext={moveLightboxNext}
+            />
+          )}
+
+          <ProductInquiryModal
+            open={Boolean(inquiryProduct)}
+            productName={inquiryProduct?.name || ''}
+            onClose={() => setInquiryProduct(null)}
+          />
 
           {totalPages > 1 && (
             <div className="products-pagination" aria-label="Paginación de productos">

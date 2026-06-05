@@ -7,10 +7,10 @@ export default function Hero() {
   return (
     <section className="hero-section" id="top">
       <div className="hero-copy">
-        <p className="hero-kicker">Herrajes para amoblamiento · Tandil</p>
+        <p className="hero-kicker">Herrajes para amoblamientos · Tandil</p>
         <h1>Calidad que <em>define</em> cada detalle</h1>
         <p className="hero-text">
-          Distribución y venta de herrajes premium para muebles y amoblamiento. Base preparada para catálogo hoy y e-commerce mañana.
+          Venta y distribución de herrajes premium para muebles y amoblamientos.
         </p>
 
         <div className="hero-actions">

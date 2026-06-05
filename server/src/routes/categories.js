@@ -11,7 +11,10 @@ const categorySchema = z.object({
   slug: z.string().min(2).optional(),
   description: z.string().optional().nullable(),
   sortOrder: z.coerce.number().int().nonnegative().optional(),
-  featuredPosition: z.coerce.number().int().positive().optional().nullable(),
+  featuredPosition: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    return value;
+  }, z.coerce.number().int().positive().optional()),
   imageAlt: z.string().optional().nullable()
 });
 
@@ -36,7 +39,7 @@ router.post('/', requireAuth, upload.single('image'), async (request, response, 
   try {
     const body = categorySchema.parse(request.body);
     const slug = body.slug || body.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const imageUrl = getFileUrl(request.file);
+    const imageUrl = getFileUrl(request.file, request);
 
     const category = await prisma.category.create({
       data: {
@@ -44,7 +47,7 @@ router.post('/', requireAuth, upload.single('image'), async (request, response, 
         slug,
         description: body.description || null,
         sortOrder: body.sortOrder ?? 0,
-        featuredPosition: body.featuredPosition || null,
+        featuredPosition: body.featuredPosition ?? null,
         image: imageUrl,
         imageAlt: body.imageAlt || null
       }
@@ -68,9 +71,11 @@ router.put('/:id', requireAuth, upload.single('image'), async (request, response
 
     let imageUrl = currentCategory.image;
     if (request.file) {
-      // Delete old image if exists
-      deleteFile(currentCategory.image);
-      imageUrl = getFileUrl(request.file);
+      // Delete old image if exists and is not null
+      if (currentCategory.image) {
+        deleteFile(currentCategory.image);
+      }
+      imageUrl = getFileUrl(request.file, request);
     }
 
     const category = await prisma.category.update({
@@ -80,9 +85,14 @@ router.put('/:id', requireAuth, upload.single('image'), async (request, response
         slug,
         description: body.description || null,
         sortOrder: body.sortOrder ?? 0,
-        featuredPosition: body.featuredPosition || null,
+        featuredPosition: body.featuredPosition ?? null,
         image: imageUrl,
         imageAlt: body.imageAlt || null
+      },
+      include: {
+        _count: {
+          select: { products: true }
+        }
       }
     });
 
