@@ -91,33 +91,12 @@ router.get('/', async (request, response, next) => {
       })
     ]);
 
-    // Add placeholder images if product has no images
-    const productsWithImages = products.map((product, index) => {
-      if (product.images.length === 0) {
-        // Generate a unique but consistent seed for each product
-        const seed = Math.abs(product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + skip + index) % 1000;
-        return {
-          ...product,
-          images: [
-            {
-              id: `placeholder-${product.id}`,
-              url: `https://picsum.photos/400/400?random=${seed}`,
-              alt: product.name,
-              sortOrder: 0,
-              productId: product.id
-            }
-          ]
-        };
-      }
-      return product;
-    });
-
     return response.json({
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      products: productsWithImages
+      products
     });
   } catch (error) {
     return next(error);
