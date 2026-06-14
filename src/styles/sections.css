@@ -131,7 +131,7 @@
 .button-secondary {
   padding: 13px 18px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--bg);
+  color: rgba(0, 0, 0, 0.72);
   background: rgba(255, 255, 255, 0.02);
 }
 
