@@ -1,40 +1,67 @@
-# 🚀 Guía de Deploy en Hostinger - Plan Business
+# Deploy en VPS Hostinger
 
-## Requisitos previos
+Guía pensada para un **VPS real en Ubuntu**. No usa flujo de hosting compartido. La aplicación se despliega así:
 
-- Plan Business de Hostinger activado
-- Dominio apuntado a Hostinger
-- Acceso SSH a tu servidor
-- Node.js 18+ instalado en Hostinger
-- PostgreSQL disponible (incluido en plan Business)
-- Estructura esperada del repo:
-  - frontend en la raíz del proyecto
-  - API en `server/`
-  - build del frontend en `dist/`
+- el frontend se compila en la **raíz** del proyecto con Vite
+- el backend vive en `server/`
+- PostgreSQL corre en el mismo VPS
+- Nginx hace de reverse proxy
+- PM2 mantiene vivo el proceso Node
+- Certbot emite y renueva el SSL
 
----
+## 1. Preparar el VPS
 
-## Paso 1: Configurar Base de Datos PostgreSQL
-
-> Si estás en un VPS, es normal que no veas la opción de crear bases de datos en hPanel.
-> En ese caso, la base PostgreSQL se instala y administra por SSH dentro del servidor.
-
-### 1.0 Opción VPS: instalar PostgreSQL manualmente
+Conectate por SSH:
 
 ```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib -y
-sudo systemctl enable --now postgresql
-sudo systemctl status postgresql
+ssh ubuntu@IP_DEL_VPS
 ```
 
-Crear base y usuario:
+Actualizá el sistema e instalá lo necesario:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git curl ca-certificates build-essential nginx postgresql postgresql-contrib
+```
+
+## 2. Instalar Node.js
+
+Instalá Node.js 20 LTS. Si el VPS no lo tiene, usá NodeSource:
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+node -v
+npm -v
+```
+
+## 3. Descargar el proyecto
+
+Usá una carpeta como `~/herrajes-app` o la ruta que prefieras:
+
+```bash
+cd ~
+git clone https://tu-repositorio.git herrajes-app
+cd herrajes-app
+```
+
+La estructura esperada es:
+
+- `package.json` y `src/` en la raíz
+- `server/` con la API
+pm2 start ~/herrajes-app/server/ecosystem.config.cjs
+
+## 4. Crear PostgreSQL en el VPS
+
+En un VPS no hace falta buscar una opción en hPanel. La base se crea por SSH.
+
+Entrá a PostgreSQL como superusuario:
 
 ```bash
 sudo -u postgres psql
 ```
 
-Dentro de `psql`:
+Dentro de `psql`, creá usuario y base:
 
 ```sql
 CREATE USER herrajes_user WITH PASSWORD 'P@ssw0rd2024Secure!';
@@ -43,378 +70,318 @@ GRANT ALL PRIVILEGES ON DATABASE herrajes_db TO herrajes_user;
 \q
 ```
 
-### 1.1 Opción Hosting administrado
-
-### 1.1 Acceder a hPanel (Panel de Control Hostinger)
-
-1. Inicia sesión en [hPanel](https://hpanel.hostinger.com)
-2. Ve a **Bases de Datos** → **PostgreSQL**
-3. Crea una nueva base de datos:
-   - Nombre: `herrajes_db`
-   - Usuario: `Enrique_owner`
-   - Contraseña: Elige una contraseña fuerte (ej: `HerrajesDB4abril`)
-4. Guarda estos datos - los necesitarás en el `.env`
-
-### 1.2 Conectar vía SSH
+### 4.1 Verificar que PostgreSQL esté activo
 
 ```bash
-ssh username@tudominio.com
-# O con IP directa si prefieres
-ssh username@[tu-ip-hostinger]
+sudo systemctl enable postgresql
+sudo systemctl status postgresql
 ```
 
----
+## 5. Configurar variables de entorno
 
-## Paso 2: Preparar el Servidor
+### 5.1 Frontend
 
-### 2.1 Crear estructura de carpetas
-
-```bash
-# Ir a directorio raíz
-cd ~/public_html
-
-# Crear carpeta para la aplicación
-mkdir herrajes-app
-cd herrajes-app
-
-# Crear subdirectorios
-mkdir server uploads logs
-```
-
-### 2.2 Descargar archivos del proyecto
-
-**Opción A: Desde Git (recomendado)**
-```bash
-cd ~/public_html/herrajes-app
-git clone https://tu-repositorio.git .
-```
-
-**Opción B: Manualmente (si no usas Git)**
-```bash
-# Subir los archivos vía FTP/SFTP
-# Copiar el frontend a ~/public_html/herrajes-app/
-# Copiar el backend a ~/public_html/herrajes-app/server
-```
-
----
-
-## Paso 3: Configurar Variables de Entorno
-
-### 3.1 Crear archivo `.env` en /server
+En la raíz del proyecto, si necesitás apuntar a la API:
 
 ```bash
-cd ~/public_html/herrajes-app/server
 nano .env
 ```
 
-Pega el siguiente contenido (reemplaza con tus valores):
+Ejemplo:
 
 ```env
-# Database - Datos de Hostinger PostgreSQL
-DATABASE_URL="postgresql://herrajes_user:P@ssw0rd2024Secure!@localhost:5432/herrajes_db?schema=public"
-
-# Security
-JWT_SECRET="tu-cadena-aleatoria-super-segura-de-minimo-32-caracteres-aqui-mas-caracteres"
-ADMIN_EMAIL="admin@tudominio.com"
-ADMIN_PASSWORD="ContraseñaAdminSegura123!!"
-
-# Server Configuration
-PORT=3001
-CORS_ORIGIN="https://tudominio.com"
-NODE_ENV="production"
-
-# File Upload
-UPLOAD_DIR="uploads"
-
-# Email Configuration
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_USER="tu-email-gmail@gmail.com"
-SMTP_PASS="tu-app-password-16-caracteres"
-BUSINESS_EMAIL="contacto@tudominio.com"
+VITE_API_BASE_URL=https://almacendeherrajes.com/api
 ```
 
-💾 Guarda: `Ctrl + O` → Enter → `Ctrl + X`
+### 5.2 Backend
 
----
-
-## Paso 4: Instalar Dependencias
-
-### 4.1 Frontend
+Creá `server/.env`:
 
 ```bash
-cd ~/public_html/herrajes-app
+cd ~/herrajes-app/server
+nano .env
+```
 
-# Instalar dependencias
+Usá algo así:
+
+```env
+DATABASE_URL="postgresql://herrajes_user:P@ssw0rd2024Secure!@localhost:5432/herrajes_db?schema=public"
+JWT_SECRET="una-clave-larga-y-segura-de-minimo-32-caracteres"
+ADMIN_EMAIL="admin@almacendeherrajes.com"
+ADMIN_PASSWORD="CambiarEstaClave123!"
+PORT=3001
+NODE_ENV="production"
+CORS_ORIGIN="https://almacendeherrajes.com"
+UPLOAD_DIR="uploads"
+FRONTEND_DIST_DIR="../dist"
+
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER="tu-correo@gmail.com"
+SMTP_PASS="tu-app-password"
+SMTP_FROM_NAME="Almacen de Herrajes"
+SMTP_FROM_EMAIL="tu-correo@gmail.com"
+SMTP_REJECT_UNAUTHORIZED=false
+BUSINESS_EMAIL="tu-correo@gmail.com"
+```
+
+## 6. Instalar dependencias y compilar
+
+### 6.1 Frontend
+
+Desde la raíz del proyecto:
+
+```bash
+cd ~/herrajes-app
 npm install
-
-# Compilar para producción
 npm run build
-
-# Verificar que se creó dist/
 ls -la dist/
 ```
 
-### 4.2 Backend
+### 6.2 Backend
 
 ```bash
-cd ~/public_html/herrajes-app/server
-
-# Instalar dependencias
+cd ~/herrajes-app/server
 npm install
-
-# Verificar sintaxis
-node -c src/index.js
-```
-
----
-
-## Paso 5: Configurar Base de Datos
-
-### 5.1 Ejecutar migraciones Prisma
-
-```bash
-cd ~/public_html/herrajes-app/server
-
-# Aplicar migraciones
-npx prisma migrate deploy
-
-# Generar cliente Prisma
 npx prisma generate
-
-# Crear usuario administrador (opcional - se crea automático)
-npx prisma db seed 2>/dev/null || true
+npx prisma migrate deploy
+node prisma/seed-categories.js
+node prisma/seed-admin.js
+node prisma/import_productos.mjs
 ```
 
----
+## 7. Probar localmente en el VPS
 
-## Paso 6: Configurar PM2 (Gestor de Procesos)
-
-### 6.1 Instalar PM2 globalmente
+Antes de poner Nginx, probá la app con Node:
 
 ```bash
-npm install -g pm2
+cd ~/herrajes-app/server
+npm run dev
 ```
 
-### 6.2 Crear archivo de configuración
+Si arranca bien, la API debería responder en:
 
 ```bash
-cd ~/public_html/herrajes-app/server
-nano ecosystem.config.js
+curl http://localhost:3001/health
 ```
 
-Pega:
+## 8. Configurar PM2
 
-```javascript
+Instalá PM2 globalmente:
+
+```bash
+sudo npm install -g pm2
+```
+
+El repositorio ya incluye `server/ecosystem.config.cjs`. Si necesitás recrearlo, el contenido es:
+
+```bash
+cd ~/herrajes-app/server
+nano ecosystem.config.cjs
+```
+
+Contenido:
+
+```js
+const path = require('node:path');
+
+const serverRoot = __dirname;
+
 module.exports = {
   apps: [
     {
       name: 'herrajes-api',
-      script: 'src/index.js',
+      script: path.join(serverRoot, 'src', 'index.js'),
+      cwd: serverRoot,
       instances: 1,
       exec_mode: 'fork',
-      cwd: './',
-      env_file: './.env',
+      env_file: path.join(serverRoot, '.env'),
       env: {
         NODE_ENV: 'production',
-        FRONTEND_DIST_DIR: '../dist'
-      },
-      error_file: '../logs/err.log',
-      out_file: '../logs/out.log',
-      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-      merge_logs: true
+        FRONTEND_DIST_DIR: path.resolve(serverRoot, '..', 'dist')
+      }
     }
   ]
 };
 ```
 
-Guarda: `Ctrl + O` → Enter → `Ctrl + X`
-
-### 6.3 Iniciar aplicación con PM2
+Iniciá el proceso:
 
 ```bash
-cd ~/public_html/herrajes-app/server
-
-# Iniciar el proceso
-pm2 start ecosystem.config.js
-
-# Guardar configuración para reinicio automático
+cd ~/herrajes-app/server
+pm2 start ./ecosystem.config.cjs
 pm2 save
-
-# Crear script de startup
 pm2 startup
-
-# Monitorear
-pm2 monit
 ```
 
----
+## 9. Configurar Nginx
 
-## Paso 7: Configurar Reverse Proxy (Nginx)
-
-Hostinger ya tiene Nginx. Necesitamos redirigir las peticiones.
-
-### 7.1 Configurar dominio en hPanel
-
-1. Ve a **Dominios** → tu dominio
-2. En **Gestionar**, busca **Proxy Inverso**
-3. Crea una entrada:
-   - Ruta: `/`
-   - Destino: `http://localhost:3001`
-   - Reescribir: Activado
-
-Con esto, Nginx solo actúa como proxy y la API Node sirve el frontend compilado desde `../dist`.
-
-O si prefieres manualmente:
+Creá un sitio para el dominio:
 
 ```bash
-sudo nano /etc/nginx/conf.d/herrajes.conf
+sudo nano /etc/nginx/sites-available/herrajes
 ```
 
-Pega:
+Contenido:
 
 ```nginx
 server {
     listen 80;
-    server_name tudominio.com www.tudominio.com;
+    server_name almacendeherrajes.com www.almacendeherrajes.com;
 
-    location / {
-        proxy_pass http://localhost:3001;
+    client_max_body_size 20m;
+
+    location /uploads/ {
+      alias /root/herrajes-app/server/uploads/;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3001/api/;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /uploads {
-        alias /home/username/public_html/herrajes-app/uploads;
-        expires 30d;
+    location /health {
+        proxy_pass http://127.0.0.1:3001/health;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
-Luego:
+Activá el sitio:
+
 ```bash
+sudo ln -s /etc/nginx/sites-available/herrajes /etc/nginx/sites-enabled/herrajes
 sudo nginx -t
-sudo systemctl restart nginx
+sudo systemctl reload nginx
 ```
 
----
+## 10. Configurar SSL con Certbot
 
-## Paso 8: Configurar SSL/HTTPS
-
-### 8.1 Generar certificado Let's Encrypt
+Instalá Certbot y el plugin de Nginx:
 
 ```bash
-# Certbot ya debe estar instalado en Hostinger
-sudo certbot certonly --nginx -d tudominio.com -d www.tudominio.com
+sudo apt install -y certbot python3-certbot-nginx
+```
 
-# Renovación automática
-sudo systemctl enable certbot.timer
+Emití el certificado:
+
+```bash
+sudo certbot --nginx -d almacendeherrajes.com -d www.almacendeherrajes.com
+```
+
+Verificá renovación automática:
+
+```bash
 sudo systemctl status certbot.timer
+sudo certbot renew --dry-run
 ```
 
----
+## 11. Verificación final
 
-## Paso 9: Verificar que todo funciona
+Chequeá todo:
 
 ```bash
-# Ver estado de PM2
 pm2 status
-
-# Ver logs en tiempo real
 pm2 logs herrajes-api
-
-# Probar endpoint
 curl http://localhost:3001/health
-
-# Probar desde navegador
-# Abre: https://tudominio.com
 ```
 
-Si el frontend no carga, comprobá que exista `~/public_html/herrajes-app/dist/index.html` y que la API se haya iniciado con `NODE_ENV=production`.
+En navegador:
 
----
+- `https://almacendeherrajes.com`
+- `https://almacendeherrajes.com/health`
 
-## Solución de Problemas Comunes
+## 12. Actualizar la app después de un cambio
 
-### Puerto 3001 ya está en uso
-```bash
-# Encontrar proceso
-lsof -i :3001
-
-# Matar proceso
-kill -9 [PID]
-
-# O cambiar puerto en .env y PM2
-```
-
-### Base de datos no conecta
-```bash
-# Verificar conexión PostgreSQL
-psql -U herrajes_user -d herrajes_db -h localhost
-
-# Ver logs del servidor
-pm2 logs herrajes-api
-```
-
-### Archivos de subida no se guardan
-```bash
-# Verificar permisos de carpeta uploads
-chmod -R 755 ~/public_html/herrajes-app/uploads
-
-# Verificar propietario
-chown -R $USER:$USER ~/public_html/herrajes-app/uploads
-```
-
-### Email no envía
-```bash
-# Verificar credenciales SMTP en .env
-# Revisar logs
-pm2 logs herrajes-api | grep -i email
-
-# Probar conexión SMTP
-telnet smtp.gmail.com 587
-```
-
----
-
-## Mantenimiento Periódico
+Cuando subas una nueva versión:
 
 ```bash
-# Ver estado general
-pm2 status
+cd ~/herrajes-app
+git pull origin main
+npm install
+npm run build
 
-# Reiniciar aplicación
-pm2 restart herrajes-api
-
-# Actualizar código
-cd ~/public_html/herrajes-app
-git pull origin main  # Si usas Git
-
-# Reconstruir frontend
-cd ~/public_html/herrajes-app && npm run build
-
-# Reiniciar PM2
+cd ~/herrajes-app/server
+npm install
+npx prisma migrate deploy
 pm2 restart herrajes-api
 ```
 
----
+## 13. Problemas comunes
 
-## Cambio de Contraseña Admin
+### No levanta PostgreSQL
 
 ```bash
-cd ~/public_html/herrajes-app/server
-npx prisma studio
-
-# Busca el admin y edita
+sudo systemctl status postgresql
+sudo journalctl -u postgresql -n 100 --no-pager
 ```
+
+### Puerto 3001 ocupado
+
+```bash
+sudo lsof -i :3001
+sudo kill -9 PID
+```
+
+### No carga el frontend
+
+Verificá que exista:
+
+```bash
+ls -la ~/herrajes-app/dist/index.html
+```
+
+Y que el backend esté corriendo con:
+
+```bash
+NODE_ENV=production
+FRONTEND_DIST_DIR=../dist
+```
+
+### El email rebota
+
+- `SMTP_USER` debe ser un correo real
+- `BUSINESS_EMAIL` debe existir y recibir mail
+- `SMTP_PASS` debe ser una app password válida
 
 ---
 
-**¡Listo! Tu aplicación está en vivo en Hostinger Business.** 🎉
+## Resumen del flujo real de deploy
 
+1. Subís el repo al VPS.
+2. Instalás Node, Nginx y PostgreSQL.
+3. Creás la base y el usuario con `psql`.
+4. Configurás `.env` en `server/`.
+5. Corrés `npm install` en la raíz y en `server/`.
+6. Corrés `npm run build` en la raíz.
+7. Aplicás Prisma y seeds.
+8. Levantás la API con PM2.
+9. Ponés Nginx como reverse proxy.
+10. Emitís SSL con Certbot.
+11. Renovación automática con `certbot.timer`.
+
+---
+
+**Fin de la guía VPS.**

@@ -33,11 +33,17 @@ export function createApp() {
     console.log(`Serving frontend from: ${frontendPath}`);
     app.use(express.static(frontendPath));
     
-    // SPA fallback: redirect non-API requests to index.html
-    app.get('*', (request, response) => {
-      if (!request.path.startsWith('/api')) {
-        response.sendFile(path.join(frontendPath, 'index.html'));
+    // SPA fallback: serve index only for frontend routes.
+    app.get('*', (request, response, next) => {
+      if (
+        request.path.startsWith('/api') ||
+        request.path === '/health' ||
+        request.path.startsWith('/uploads')
+      ) {
+        return next();
       }
+
+      response.sendFile(path.join(frontendPath, 'index.html'));
     });
   }
 
