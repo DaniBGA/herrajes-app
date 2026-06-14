@@ -29,6 +29,7 @@ La API vive en `server/` y expone:
 - creación de categorías
 - creación de productos con múltiples imágenes
 - listado paginado de productos
+- formulario de contacto con envío de emails
 
 Revisá [server/README.md](server/README.md) para la puesta en marcha completa.
 

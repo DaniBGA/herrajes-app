@@ -882,8 +882,18 @@
   justify-content: space-between;
   gap: 18px;
   flex-wrap: wrap;
+  padding-right: 92px;
   color: rgba(244, 240, 234, 0.32);
   font-size: 12px;
+}
+
+.footer-bottom p {
+  margin: 0;
+}
+
+.footer-credit {
+  margin: 0 auto;
+  text-align: center;
 }
 
 .footer-bottom span {
@@ -913,6 +923,12 @@
   width: 28px;
   height: 28px;
   fill: #fff;
+}
+
+@media (max-width: 900px) {
+  .footer-bottom {
+    padding-right: 0;
+  }
 }
 
 .mockup-notice {

@@ -207,7 +207,6 @@ export default function ProductsPage() {
                   </div>
                 )}
                 {product.featured && <span className="catalog-card-badge">Destacado</span>}
-                <p className="catalog-card-sku">SKU · {product.sku}</p>
                 <h3>{product.name}</h3>
                 <p className="catalog-card-description">{product.description}</p>
                 <div className="catalog-card-meta">

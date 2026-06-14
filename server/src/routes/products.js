@@ -13,11 +13,16 @@ const productSchema = z.object({
   slug: z.string().min(2).optional(),
   description: z.string().min(5),
   material: z.string().optional().nullable(),
-  price: z.coerce.number().nonnegative(),
+  price: z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return 0;
+    const parsed = Number(String(value).replace(',', '.'));
+    return Number.isFinite(parsed) ? Math.trunc(parsed) : value;
+  }, z.coerce.number().int().nonnegative()),
   compareAtPrice: z.preprocess((value) => {
     if (value === '' || value === null || value === undefined) return undefined;
-    return value;
-  }, z.coerce.number().nonnegative().optional()),
+    const parsed = Number(String(value).replace(',', '.'));
+    return Number.isFinite(parsed) ? Math.trunc(parsed) : value;
+  }, z.coerce.number().int().nonnegative().optional()),
   stock: z.coerce.number().int().nonnegative().optional(),
   featured: z.preprocess((val) => {
     if (typeof val === 'string') {

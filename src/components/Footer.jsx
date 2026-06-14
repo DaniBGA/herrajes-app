@@ -65,8 +65,8 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <p>© 2025 Almacen de Herrajes · Tandil, Buenos Aires</p>
-        <p>
+        <p>© 2026 Almacen de Herrajes · Tandil, Buenos Aires</p>
+        <p className="footer-credit">
           Diseño y desarrollo · <span>Grupo Vexus</span>
         </p>
       </div>

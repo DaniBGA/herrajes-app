@@ -7,10 +7,43 @@
 - Acceso SSH a tu servidor
 - Node.js 18+ instalado en Hostinger
 - PostgreSQL disponible (incluido en plan Business)
+- Estructura esperada del repo:
+  - frontend en la raíz del proyecto
+  - API en `server/`
+  - build del frontend en `dist/`
 
 ---
 
 ## Paso 1: Configurar Base de Datos PostgreSQL
+
+> Si estás en un VPS, es normal que no veas la opción de crear bases de datos en hPanel.
+> En ese caso, la base PostgreSQL se instala y administra por SSH dentro del servidor.
+
+### 1.0 Opción VPS: instalar PostgreSQL manualmente
+
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl enable --now postgresql
+sudo systemctl status postgresql
+```
+
+Crear base y usuario:
+
+```bash
+sudo -u postgres psql
+```
+
+Dentro de `psql`:
+
+```sql
+CREATE USER herrajes_user WITH PASSWORD 'P@ssw0rd2024Secure!';
+CREATE DATABASE herrajes_db OWNER herrajes_user;
+GRANT ALL PRIVILEGES ON DATABASE herrajes_db TO herrajes_user;
+\q
+```
+
+### 1.1 Opción Hosting administrado
 
 ### 1.1 Acceder a hPanel (Panel de Control Hostinger)
 
@@ -18,8 +51,8 @@
 2. Ve a **Bases de Datos** → **PostgreSQL**
 3. Crea una nueva base de datos:
    - Nombre: `herrajes_db`
-   - Usuario: `herrajes_user`
-   - Contraseña: Elige una contraseña fuerte (ej: `P@ssw0rd2024Secure!`)
+   - Usuario: `Enrique_owner`
+   - Contraseña: Elige una contraseña fuerte (ej: `HerrajesDB4abril`)
 4. Guarda estos datos - los necesitarás en el `.env`
 
 ### 1.2 Conectar vía SSH
@@ -45,7 +78,7 @@ mkdir herrajes-app
 cd herrajes-app
 
 # Crear subdirectorios
-mkdir server frontend uploads logs
+mkdir server uploads logs
 ```
 
 ### 2.2 Descargar archivos del proyecto
@@ -59,8 +92,8 @@ git clone https://tu-repositorio.git .
 **Opción B: Manualmente (si no usas Git)**
 ```bash
 # Subir los archivos vía FTP/SFTP
-# Copiar contenido de /server hacia ~/public_html/herrajes-app/server
-# Copiar contenido de /frontend hacia ~/public_html/herrajes-app/frontend
+# Copiar el frontend a ~/public_html/herrajes-app/
+# Copiar el backend a ~/public_html/herrajes-app/server
 ```
 
 ---
@@ -110,7 +143,7 @@ BUSINESS_EMAIL="contacto@tudominio.com"
 ### 4.1 Frontend
 
 ```bash
-cd ~/public_html/herrajes-app/frontend
+cd ~/public_html/herrajes-app
 
 # Instalar dependencias
 npm install
@@ -178,10 +211,13 @@ module.exports = {
     {
       name: 'herrajes-api',
       script: 'src/index.js',
-      instances: 'max',
-      exec_mode: 'cluster',
+      instances: 1,
+      exec_mode: 'fork',
+      cwd: './',
+      env_file: './.env',
       env: {
-        NODE_ENV: 'production'
+        NODE_ENV: 'production',
+        FRONTEND_DIST_DIR: '../dist'
       },
       error_file: '../logs/err.log',
       out_file: '../logs/out.log',
@@ -226,6 +262,8 @@ Hostinger ya tiene Nginx. Necesitamos redirigir las peticiones.
    - Ruta: `/`
    - Destino: `http://localhost:3001`
    - Reescribir: Activado
+
+Con esto, Nginx solo actúa como proxy y la API Node sirve el frontend compilado desde `../dist`.
 
 O si prefieres manualmente:
 
@@ -277,6 +315,7 @@ sudo certbot certonly --nginx -d tudominio.com -d www.tudominio.com
 
 # Renovación automática
 sudo systemctl enable certbot.timer
+sudo systemctl status certbot.timer
 ```
 
 ---
@@ -296,6 +335,8 @@ curl http://localhost:3001/health
 # Probar desde navegador
 # Abre: https://tudominio.com
 ```
+
+Si el frontend no carga, comprobá que exista `~/public_html/herrajes-app/dist/index.html` y que la API se haya iniciado con `NODE_ENV=production`.
 
 ---
 
@@ -356,7 +397,7 @@ cd ~/public_html/herrajes-app
 git pull origin main  # Si usas Git
 
 # Reconstruir frontend
-cd frontend && npm run build
+cd ~/public_html/herrajes-app && npm run build
 
 # Reiniciar PM2
 pm2 restart herrajes-api

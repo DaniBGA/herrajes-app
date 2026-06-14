@@ -22,6 +22,23 @@ Base backend en Node.js con PostgreSQL, Prisma y panel de administración.
 
 Copiá `server/.env.example` a `.env` y completá los valores.
 
+### Email para consultas
+
+Para que el formulario de contacto envíe correos, configurá al menos estas variables:
+
+```bash
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER="tu-correo@gmail.com"
+SMTP_PASS="tu-app-password"
+SMTP_FROM_NAME="Almacen de Herrajes"
+SMTP_FROM_EMAIL="tu-correo@gmail.com"
+BUSINESS_EMAIL="consultas@tudominio.com"
+```
+
+`BUSINESS_EMAIL` es la casilla que recibe las consultas. Si no la definís, se usa `ADMIN_EMAIL`.
+
 ## Flujo recomendado
 
 ```bash

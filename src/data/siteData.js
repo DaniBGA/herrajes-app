@@ -14,38 +14,106 @@ export const heroStats = [
 
 export const categories = [
   {
-    title: 'Bisagras y Articulaciones',
-    description: 'Ocultas · Cangrejo · Piano · Especiales',
+    title: 'Guías para Cajones',
+    description: 'Guías de aluminio y acero para cajones',
     featured: true,
     pattern: 'orbit'
   },
   {
-    title: 'Corrimientos y Rieles',
-    description: 'Cajoneras · Puertas · Soft-close',
+    title: 'Bisagras',
+    description: 'Bisagras ocultas, cangrejo y piano',
+    featured: true,
     pattern: 'grid'
   },
   {
-    title: 'Tiradores y Manijas',
-    description: 'Acero · Cromados · Mate · Vintage',
+    title: 'Cantos de Melamina y PVC',
+    description: 'Cantos para revestimiento de bordes',
     pattern: 'rings'
   },
   {
-    title: 'Cierre y Seguridad',
-    description: 'Chapas · Cilindros · Magnéticos',
+    title: 'Accesorios para Placard',
+    description: 'Accesorios y herrajes para placares',
     pattern: 'triangles'
   },
   {
-    title: 'Accesorios Estructurales',
-    description: 'Patas · Soportes · Conectores',
+    title: 'Elevadores',
+    description: 'Elevadores y soportes de altura',
     pattern: 'diagonal'
+  },
+  {
+    title: 'Accesorios de Armado',
+    description: 'Conectores, escuadras y fijaciones',
+    pattern: 'orbit'
+  },
+  {
+    title: 'Patas',
+    description: 'Patas regulables para muebles',
+    pattern: 'grid'
+  },
+  {
+    title: 'Frentes de Placard y Sistemas Corredizos',
+    description: 'Sistemas de puertas corredizas',
+    pattern: 'rings'
+  },
+  {
+    title: 'Zócalos',
+    description: 'Zócalos de diferentes materiales',
+    pattern: 'triangles'
+  },
+  {
+    title: 'Perfilería de Aluminio',
+    description: 'Perfiles estructurales de aluminio',
+    pattern: 'diagonal'
+  },
+  {
+    title: 'Tiradores y Manijas',
+    description: 'Tiradores en acero, cromado y vintage',
+    featured: true,
+    pattern: 'orbit'
+  },
+  {
+    title: 'LED',
+    description: 'Iluminación LED para muebles',
+    pattern: 'grid'
+  },
+  {
+    title: 'Tornillos y Fijaciones',
+    description: 'Tornillos, pernos y anclajes',
+    pattern: 'rings'
+  },
+  {
+    title: 'Adhesivos',
+    description: 'Adhesivos de aplicación en muebles',
+    pattern: 'triangles'
+  },
+  {
+    title: 'Herramientas',
+    description: 'Herramientas de instalación y ensamble',
+    pattern: 'diagonal'
+  },
+  {
+    title: 'Accesorios para Bajomesadas',
+    description: 'Accesorios especiales para bajomesadas',
+    pattern: 'orbit'
+  },
+  {
+    title: 'Máquinas Industriales',
+    description: 'Máquinas para procesamiento de madera',
+    pattern: 'grid'
+  },
+  {
+    title: 'Varios',
+    description: 'Otros accesorios y productos',
+    pattern: 'rings'
   }
 ];
 
 export const productFilters = [
   { label: 'Todos', value: 'all' },
+  { label: 'Guías para Cajones', value: 'guias-cajones' },
   { label: 'Bisagras', value: 'bisagras' },
-  { label: 'Corrimientos', value: 'corrimientos' },
-  { label: 'Tiradores', value: 'tiradores' }
+  { label: 'Cantos', value: 'cantos' },
+  { label: 'Placard', value: 'placard' }
 ];
 
 export const featuredProducts = [
@@ -87,11 +155,24 @@ export const featuredProducts = [
 
 export const productCategories = [
   { value: 'all', label: 'Todas las categorías' },
-  { value: 'bisagras', label: 'Bisagras y Articulaciones' },
-  { value: 'corrimientos', label: 'Corrimientos y Rieles' },
-  { value: 'tiradores', label: 'Tiradores y Manijas' },
-  { value: 'seguridad', label: 'Cierre y Seguridad' },
-  { value: 'estructurales', label: 'Accesorios Estructurales' }
+  { value: 'guias-cajones', label: 'Guías para Cajones' },
+  { value: 'bisagras', label: 'Bisagras' },
+  { value: 'cantos-melamina-pvc', label: 'Cantos de Melamina y PVC' },
+  { value: 'placard', label: 'Accesorios para Placard' },
+  { value: 'elevadores', label: 'Elevadores' },
+  { value: 'accesorios-armado', label: 'Accesorios de Armado' },
+  { value: 'patas', label: 'Patas' },
+  { value: 'frentes-corredizos', label: 'Frentes de Placard y Sistemas Corredizos' },
+  { value: 'zocalos', label: 'Zócalos' },
+  { value: 'perfileria-aluminio', label: 'Perfilería de Aluminio' },
+  { value: 'tiradores-manijas', label: 'Tiradores y Manijas' },
+  { value: 'led', label: 'LED' },
+  { value: 'tornillos-fijaciones', label: 'Tornillos y Fijaciones' },
+  { value: 'adhesivos', label: 'Adhesivos' },
+  { value: 'herramientas', label: 'Herramientas' },
+  { value: 'accesorios-bajomesadas', label: 'Accesorios para Bajomesadas' },
+  { value: 'maquinas-industriales', label: 'Máquinas Industriales' },
+  { value: 'varios', label: 'Varios' }
 ];
 
 export const catalogProducts = [
@@ -269,7 +350,7 @@ export const contactChannels = [
   {
     label: 'WhatsApp',
     value: 'Consultas rápidas y pedidos',
-    href: 'https://wa.me/5492494000000',
+    href: 'https://wa.me/2494607065',
     icon: 'whatsapp',
     accent: 'wa'
   },

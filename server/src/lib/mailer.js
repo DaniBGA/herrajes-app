@@ -7,6 +7,8 @@ export function initializeMailer() {
   const smtpPort = parseInt(process.env.SMTP_PORT || '587');
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
+  const smtpSecure = String(process.env.SMTP_SECURE || '').toLowerCase();
+  const smtpRejectUnauthorized = String(process.env.SMTP_REJECT_UNAUTHORIZED || 'true').toLowerCase();
 
   if (!smtpHost || !smtpUser || !smtpPass) {
     console.warn('Email configuration incomplete. Email sending may not work.');
@@ -16,7 +18,12 @@ export function initializeMailer() {
   transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
-    secure: smtpPort === 465,
+    secure: smtpSecure
+      ? ['true', '1', 'yes', 'on'].includes(smtpSecure)
+      : smtpPort === 465,
+    tls: {
+      rejectUnauthorized: !['false', '0', 'no', 'off'].includes(smtpRejectUnauthorized)
+    },
     auth: {
       user: smtpUser,
       pass: smtpPass
@@ -33,9 +40,11 @@ export async function sendContactEmail(contactData) {
 
   const { name, email, phone, message } = contactData;
   const businessEmail = process.env.BUSINESS_EMAIL || process.env.ADMIN_EMAIL;
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+  const fromName = process.env.SMTP_FROM_NAME || 'Almacen de Herrajes';
 
   const mailOptions = {
-    from: process.env.SMTP_USER,
+    from: `${fromName} <${fromEmail}>`,
     to: businessEmail,
     replyTo: email,
     subject: `Nueva consulta de ${name} - Almacen de Herrajes`,
@@ -48,7 +57,18 @@ export async function sendContactEmail(contactData) {
       <p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
       <hr>
       <p><small>Este email fue enviado desde el formulario de contacto del sitio web.</small></p>
-    `
+    `,
+    text: [
+      'Nueva consulta recibida',
+      `Nombre: ${name}`,
+      `Email: ${email}`,
+      `Teléfono: ${phone}`,
+      '',
+      'Mensaje:',
+      message,
+      '',
+      'Enviado desde el formulario de contacto del sitio web.'
+    ].join('\n')
   };
 
   try {

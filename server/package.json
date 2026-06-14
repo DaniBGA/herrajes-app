@@ -11,7 +11,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "seed:admin": "node prisma/seed-admin.js"
+    "seed:admin": "node prisma/seed-admin.js",
+    "seed:categories": "node prisma/seed-categories.js",
+    "import:products": "node prisma/import_productos.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

@@ -25,7 +25,12 @@ export function createApp() {
 
   // Production: serve frontend static files
   if (process.env.NODE_ENV === 'production') {
-    const frontendPath = path.resolve(process.cwd(), 'frontend', 'dist');
+    const frontendPath = path.resolve(
+      process.cwd(),
+      process.env.FRONTEND_DIST_DIR || path.join('..', 'dist')
+    );
+
+    console.log(`Serving frontend from: ${frontendPath}`);
     app.use(express.static(frontendPath));
     
     // SPA fallback: redirect non-API requests to index.html
