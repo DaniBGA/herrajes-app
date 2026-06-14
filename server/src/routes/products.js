@@ -204,6 +204,34 @@ router.put('/:id', requireAuth, upload.array('images', 12), async (request, resp
   }
 });
 
+router.delete('/:id/images/:imageId', requireAuth, async (request, response, next) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: request.params.id },
+      include: { images: true }
+    });
+
+    if (!product) {
+      return response.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    const image = product.images.find((item) => item.id === request.params.imageId);
+    if (!image) {
+      return response.status(404).json({ message: 'Imagen no encontrada para este producto' });
+    }
+
+    deleteFile(image.url);
+
+    await prisma.productImage.delete({
+      where: { id: request.params.imageId }
+    });
+
+    return response.json({ message: 'Imagen eliminada exitosamente' });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.delete('/:id', requireAuth, async (request, response, next) => {
   try {
     const product = await prisma.product.findUnique({

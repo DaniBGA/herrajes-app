@@ -51,6 +51,8 @@ export default function AdminProductsPage({ token }) {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterFeatured, setFilterFeatured] = useState('');
   const [deleting, setDeleting] = useState(null);
+  const [deletingImageId, setDeletingImageId] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
 
   useEffect(() => {
@@ -179,6 +181,7 @@ export default function AdminProductsPage({ token }) {
       setProductForm(emptyProduct);
       setImageFiles([]);
       setImageAlts(['']);
+      setExistingImages([]);
       setShowForm(false);
       setEditingProductId(null);
       setMessage(editingProductId ? 'Producto actualizado exitosamente.' : 'Producto creado exitosamente.');
@@ -225,6 +228,7 @@ export default function AdminProductsPage({ token }) {
       status: product.status
     });
     setEditingProductId(product.id);
+    setExistingImages(product.images || []);
     setImageFiles([]);
     setImageAlts(['']);
     setShowForm(true);
@@ -235,8 +239,31 @@ export default function AdminProductsPage({ token }) {
     setProductForm(emptyProduct);
     setImageFiles([]);
     setImageAlts(['']);
+    setExistingImages([]);
+    setDeletingImageId(null);
     setEditingProductId(null);
     setShowForm(false);
+  }
+
+  async function handleDeleteExistingImage(imageId) {
+    if (!editingProductId || !imageId) return;
+    if (!window.confirm('¿Eliminar esta imagen del producto?')) return;
+
+    try {
+      setDeletingImageId(imageId);
+      await apiRequest(`/products/${editingProductId}/images/${imageId}`, {
+        method: 'DELETE'
+      });
+
+      setExistingImages((prev) => prev.filter((image) => image.id !== imageId));
+      setMessage('Imagen eliminada exitosamente.');
+      await loadProducts();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeletingImageId(null);
+    }
   }
 
   function getPaginationPages() {
@@ -440,6 +467,32 @@ export default function AdminProductsPage({ token }) {
 
           <div className="images-section">
             <h3>Imágenes del Producto</h3>
+
+            {editingProductId && (
+              <div className="existing-images-section">
+                <p className="existing-images-title">Imágenes actuales</p>
+                {existingImages.length === 0 ? (
+                  <p className="existing-images-empty">Este producto no tiene imágenes cargadas.</p>
+                ) : (
+                  <div className="existing-images-grid">
+                    {existingImages.map((image) => (
+                      <div key={image.id} className="existing-image-card">
+                        <img src={resolveMediaUrl(image.url)} alt={image.alt || productForm.name} />
+                        <button
+                          type="button"
+                          className="btn btn-small btn-delete"
+                          onClick={() => handleDeleteExistingImage(image.id)}
+                          disabled={deletingImageId === image.id}
+                        >
+                          {deletingImageId === image.id ? 'Eliminando...' : 'Eliminar'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {imageFiles.map((file, index) => (
               <div key={index} className="image-input-group">
                 <input
@@ -463,6 +516,11 @@ export default function AdminProductsPage({ token }) {
             <button type="button" onClick={handleAddImageField} className="btn btn-secondary">
               + Agregar Imagen
             </button>
+            {editingProductId && imageFiles.some(Boolean) && (
+              <p className="images-replace-note">
+                Al guardar con nuevas imágenes, se reemplazarán las imágenes actuales.
+              </p>
+            )}
           </div>
 
           <button type="submit" disabled={loading} className="btn btn-primary btn-submit">
