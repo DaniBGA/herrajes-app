@@ -38,7 +38,8 @@ export function createApp() {
       if (
         request.path.startsWith('/api') ||
         request.path === '/health' ||
-        request.path.startsWith('/uploads')
+        request.path.startsWith('/uploads') ||
+        request.path.startsWith('/assets')
       ) {
         return next();
       }
