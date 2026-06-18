@@ -1,0 +1,107 @@
+.consult-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(8, 8, 8, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.consult-modal {
+  position: relative;
+  width: min(100%, 520px);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(24, 20, 16, 0.98), rgba(12, 12, 12, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  padding: 28px;
+}
+
+.consult-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text, #f4f0ea);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.consult-modal-eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold, #c8a96e);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.consult-modal-title {
+  margin: 0;
+  color: var(--text, #f4f0ea);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.1;
+}
+
+.consult-modal-text {
+  margin: 14px 0 0;
+  color: rgba(244, 240, 234, 0.76);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.consult-modal-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.consult-modal-action {
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.consult-modal-action:hover {
+  transform: translateY(-1px);
+}
+
+.consult-modal-action-primary {
+  background: var(--gold, #c8a96e);
+  color: var(--accent-contrast, #111111);
+}
+
+.consult-modal-action-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text, #f4f0ea);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.product-link-button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .consult-modal {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .consult-modal-actions {
+    margin-top: 20px;
+  }
+}

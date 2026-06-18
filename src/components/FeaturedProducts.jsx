@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SectionHeading from './SectionHeading';
 import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
 import { ProductGlyph } from './Icons';
+import ConsultAvailabilityModal from './ConsultAvailabilityModal';
 
 export default function FeaturedProducts() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [activeFilter, setActiveFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [consultProduct, setConsultProduct] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -42,6 +46,24 @@ export default function FeaturedProducts() {
     ...categories.map((cat) => ({ value: cat.slug, label: cat.name }))
   ];
 
+  const handleOpenConsultModal = (product) => {
+    setConsultProduct(product);
+  };
+
+  const handleCloseConsultModal = () => {
+    setConsultProduct(null);
+  };
+
+  const handleConsultByEmail = () => {
+    setConsultProduct(null);
+    navigate('/#contacto');
+  };
+
+  const handleConsultByWhatsApp = (whatsappUrl) => {
+    setConsultProduct(null);
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <section id="productos" className="section section-dark">
       <SectionHeading
@@ -74,14 +96,26 @@ export default function FeaturedProducts() {
               <p className="product-description">{product.description}</p>
               <div className="product-footer">
                 <span className="product-material">{product.material || 'N/A'}</span>
-                <a href="#contacto" className="product-link">
+                <button
+                  type="button"
+                  className="product-link product-link-button"
+                  onClick={() => handleOpenConsultModal(product)}
+                >
                   Consultar →
-                </a>
+                </button>
               </div>
             </article>
           ))}
         </div>
       )}
+
+      <ConsultAvailabilityModal
+        open={Boolean(consultProduct)}
+        productName={consultProduct?.name}
+        onClose={handleCloseConsultModal}
+        onEmail={handleConsultByEmail}
+        onWhatsApp={handleConsultByWhatsApp}
+      />
     </section>
   );
 }

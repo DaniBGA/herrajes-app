@@ -82,6 +82,28 @@ export default function App() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    if (!location.hash) {
+      return;
+    }
+
+    const targetId = decodeURIComponent(location.hash.replace('#', ''));
+    if (!targetId) {
+      return;
+    }
+
+    const rafOne = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    return () => window.cancelAnimationFrame(rafOne);
+  }, [location.hash, location.pathname]);
+
   return (
     <div className="app-shell">
       <TopBanner />

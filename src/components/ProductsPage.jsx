@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiRequest, resolveMediaUrl } from '../lib/apiClient';
+import ConsultAvailabilityModal from './ConsultAvailabilityModal';
 
 function formatPrice(value) {
   return new Intl.NumberFormat('es-AR', {
@@ -11,6 +13,7 @@ function formatPrice(value) {
 
 export default function ProductsPage() {
   const ITEMS_PER_PAGE = 20;
+  const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
@@ -25,6 +28,7 @@ export default function ProductsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [consultProduct, setConsultProduct] = useState(null);
 
   // Cargar categorías y verificar filtro del sessionStorage
   useEffect(() => {
@@ -92,6 +96,24 @@ export default function ProductsPage() {
     setMinPrice('');
     setMaxPrice('');
     setCurrentPage(1);
+  };
+
+  const handleOpenConsultModal = (product) => {
+    setConsultProduct(product);
+  };
+
+  const handleCloseConsultModal = () => {
+    setConsultProduct(null);
+  };
+
+  const handleConsultByEmail = () => {
+    setConsultProduct(null);
+    navigate('/#contacto');
+  };
+
+  const handleConsultByWhatsApp = (whatsappUrl) => {
+    setConsultProduct(null);
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   function getPaginationPages() {
@@ -215,9 +237,13 @@ export default function ProductsPage() {
                   </span>
                   <strong>{formatPrice(product.price)}</strong>
                 </div>
-                <a href="#contacto" className="catalog-card-link">
+                <button
+                  type="button"
+                  className="catalog-card-link product-link-button"
+                  onClick={() => handleOpenConsultModal(product)}
+                >
                   Consultar disponibilidad →
-                </a>
+                </button>
               </article>
             ))}
           </div>
@@ -310,6 +336,14 @@ export default function ProductsPage() {
           )}
         </>
       )}
+
+      <ConsultAvailabilityModal
+        open={Boolean(consultProduct)}
+        productName={consultProduct?.name}
+        onClose={handleCloseConsultModal}
+        onEmail={handleConsultByEmail}
+        onWhatsApp={handleConsultByWhatsApp}
+      />
     </section>
   );
 }

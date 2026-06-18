@@ -1,3 +1,5 @@
+import { WHATSAPP_URL } from './contactInfo';
+
 export const navLinks = [
   { label: 'Productos', href: '/productos' },
   { label: 'Nosotros', href: '/', sectionId: 'nosotros' },
@@ -350,7 +352,7 @@ export const contactChannels = [
   {
     label: 'WhatsApp',
     value: 'Consultas rápidas y pedidos',
-    href: 'https://wa.me/2494607065',
+    href: WHATSAPP_URL,
     icon: 'whatsapp',
     accent: 'wa'
   },
